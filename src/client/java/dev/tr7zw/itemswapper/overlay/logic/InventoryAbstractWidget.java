@@ -40,8 +40,10 @@ public abstract class InventoryAbstractWidget extends ItemGridWidget {
         if (!slots.isEmpty()) {
             AvailableSlot slot = slots.get(0);
             if (!slot.item().isEmpty()) {
+                // Use the inventory slot from AvailableSlot so hotbar (0-8) and
+                // main inventory (9+) both open the correct container.
                 overlay.openPage(ItemSwapperMod.instance.getItemGroupManager().getNextPage(null,
-                        new ItemEntry(slot.item().getItem(), null), guiSlot.id() + 9));
+                        new ItemEntry(slot.item().getItem(), null), slot.slot()));
             }
         }
     }
