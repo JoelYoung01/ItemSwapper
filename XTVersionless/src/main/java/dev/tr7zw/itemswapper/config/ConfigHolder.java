@@ -1,6 +1,9 @@
 package dev.tr7zw.itemswapper.config;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import dev.tr7zw.transition.config.ConfigManager;
 import lombok.*;
@@ -34,15 +37,30 @@ public class ConfigHolder {
     }
 
     private static void migrateMisnamedConfig(String baseName) {
-        File correct = new File("config", baseName + ".json");
-        File misnamed = new File("config", baseName + ".json.json");
-        if (!misnamed.isFile()) {
+        Path correct = Path.of("config", baseName + ".json");
+        Path misnamed = Path.of("config", baseName + ".json.json");
+        if (!Files.isRegularFile(misnamed)) {
             return;
         }
-        if (correct.exists() && !correct.delete()) {
-            return;
+
+        Path backup = null;
+        try {
+            if (Files.exists(correct)) {
+                backup = Path.of("config", baseName + ".json.bak");
+                Files.move(correct, backup, StandardCopyOption.REPLACE_EXISTING);
+            }
+            Files.move(misnamed, correct);
+            if (backup != null) {
+                Files.deleteIfExists(backup);
+            }
+        } catch (IOException e) {
+            if (backup != null && Files.exists(backup) && !Files.exists(correct)) {
+                try {
+                    Files.move(backup, correct);
+                } catch (IOException ignored) {
+                    // Leave ConfigManager to create a fresh config if restore also fails.
+                }
+            }
         }
-        // Best-effort migration; ConfigManager will create a fresh file if rename fails.
-        misnamed.renameTo(correct);
     }
 }
