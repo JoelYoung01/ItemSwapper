@@ -80,7 +80,7 @@ public class ShulkerHelper {
     }
 
     public static Set<Item> getShulkerItems() {
-        return shulkers;
+        return Set.copyOf(shulkers);
     }
 
 }
