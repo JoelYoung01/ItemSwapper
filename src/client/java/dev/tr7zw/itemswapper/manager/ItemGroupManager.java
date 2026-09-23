@@ -9,6 +9,7 @@ import dev.tr7zw.itemswapper.api.client.ContainerProvider;
 import dev.tr7zw.itemswapper.config.*;
 import dev.tr7zw.itemswapper.manager.itemgroups.*;
 import dev.tr7zw.itemswapper.util.ColorUtil.UnpackedColor;
+import dev.tr7zw.itemswapper.util.ShulkerHelper;
 import dev.tr7zw.transition.config.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
@@ -92,7 +93,10 @@ public class ItemGroupManager {
         if (current == null && slot != -1 && !configManager.getConfig().disableShulkers) {
             ContainerProvider provider = ItemSwapperSharedMod.instance.getClientProviderManager()
                     .getContainerProvider(clicked.getItem());
-            if (provider != null) {
+            // The provider stays registered when the server has not enabled shulkers.
+            // Opening the page then would be an empty grid; fall through to the shulker list.
+            if (provider != null && (!ShulkerHelper.isShulker(clicked.getItem())
+                    || ItemSwapperSharedMod.instance.getSessionSettings().isEnableShulkers())) {
                 return new ContainerPage(slot);
             }
         }
