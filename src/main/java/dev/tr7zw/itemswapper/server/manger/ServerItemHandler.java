@@ -40,9 +40,11 @@ public class ServerItemHandler {
             ItemStack shulker = player.getInventory().getItem(payload.inventorySlot());
             NonNullList<ItemStack> content = ShulkerHelper.getItems(shulker);
             if (content != null) {
+                // Swap the hand with this slot.
+                // storeAwayItem files the hand into any container, then this stale copy was written back over that write and deleted the held stack.
+                // Pick block and remote swaps still use storeAwayItem.
                 ItemStack tmp = content.get(payload.slot());
-                storeAwayItem(player, InventoryUtil.getSelectedId(player.getInventory()), Collections.emptySet());
-                content.set(payload.slot(), InventoryUtil.getSelected(player.getInventory()));
+                content.set(payload.slot(), InventoryUtil.getSelected(player.getInventory()).copy());
                 player.getInventory().setItem(InventoryUtil.getSelectedId(player.getInventory()), tmp);
                 ShulkerHelper.setItem(shulker, content);
             }

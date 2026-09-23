@@ -41,7 +41,7 @@ public abstract class InventoryAbstractWidget extends ItemGridWidget {
             AvailableSlot slot = slots.get(0);
             if (!slot.item().isEmpty()) {
                 overlay.openPage(ItemSwapperMod.instance.getItemGroupManager().getNextPage(null,
-                        new ItemEntry(slot.item().getItem(), null), guiSlot.id() + 9));
+                        new ItemEntry(slot.item().getItem(), null), slot.slot()));
             }
         }
     }

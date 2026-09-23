@@ -7,6 +7,7 @@ import dev.tr7zw.itemswapper.manager.itemgroups.*;
 import dev.tr7zw.itemswapper.packets.*;
 import dev.tr7zw.itemswapper.packets.serverbound.*;
 import dev.tr7zw.itemswapper.util.ItemUtil;
+import dev.tr7zw.itemswapper.util.ShulkerHelper;
 import dev.tr7zw.transition.loader.networking.*;
 import dev.tr7zw.transition.mc.*;
 import lombok.*;
@@ -40,8 +41,13 @@ public class ItemManager {
     }
 
     public boolean grabLocalItem(AvailableSlot slot) {
-        // Only grab from player inventory, which is -1
-        if (slot.inventory() != -1) {
+        // -2 is a remote item. Positive ids are containers in the player inventory.
+        if (slot.inventory() == -2) {
+            return false;
+        }
+        if (slot.inventory() != -1
+                && ShulkerHelper.isShulker(InventoryUtil.getSelected(minecraft.player.getInventory()).getItem())) {
+            // Can't put a shulker into a shulker
             return false;
         }
         ItemSwapperClientAPI.OnSwap event = clientAPI.prepareItemSwapEvent
@@ -50,7 +56,11 @@ public class ItemManager {
             // interaction canceled by some other mod
             return false;
         }
-        ItemUtil.swapWithSlot(ItemUtil.inventorySlotToHudSlot(slot.slot()));
+        if (slot.inventory() == -1) {
+            ItemUtil.swapWithSlot(ItemUtil.inventorySlotToHudSlot(slot.slot()));
+        } else {
+            ClientNetworkUtil.sendPacket(new SwapItemPayload(slot.inventory(), slot.slot()));
+        }
         clientAPI.itemSwapSentEvent.callEvent(new ItemSwapperClientAPI.SwapSent(slot));
         return true;
     }
