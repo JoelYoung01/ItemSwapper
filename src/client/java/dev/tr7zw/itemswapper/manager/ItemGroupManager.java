@@ -4,13 +4,8 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import dev.tr7zw.itemswapper.ItemSwapperBase;
-import dev.tr7zw.itemswapper.ItemSwapperSharedMod;
-import dev.tr7zw.itemswapper.api.client.ContainerProvider;
-import dev.tr7zw.itemswapper.config.*;
 import dev.tr7zw.itemswapper.manager.itemgroups.*;
 import dev.tr7zw.itemswapper.util.ColorUtil.UnpackedColor;
-import dev.tr7zw.itemswapper.util.ShulkerHelper;
-import dev.tr7zw.transition.config.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.*;
@@ -21,7 +16,6 @@ import static dev.tr7zw.transition.mc.GeneralUtil.getResourceLocation;
 
 public class ItemGroupManager {
 
-    private static final ConfigManager<Config> configManager = ConfigHolder.getInstance().getGeneral();
     private final Map<Identifier, ItemGroup> groupMapping = new HashMap<>();
     private final Map<Item, List<ItemGroup>> paletteMapping = new HashMap<>();
     private final Map<Identifier, ItemList> listKeyMapping = new HashMap<>();
@@ -87,17 +81,6 @@ public class ItemGroupManager {
             ItemGroup group = groupMapping.get(current.getForcedLink());
             if (group != null) {
                 return new ItemGroupPage(group);
-            }
-        }
-        // check if it's a valid container that can be opened
-        if (current == null && slot != -1 && !configManager.getConfig().disableShulkers) {
-            ContainerProvider provider = ItemSwapperSharedMod.instance.getClientProviderManager()
-                    .getContainerProvider(clicked.getItem());
-            // The provider stays registered when the server has not enabled shulkers.
-            // Opening the page then would be an empty grid; fall through to the shulker list.
-            if (provider != null && (!ShulkerHelper.isShulker(clicked.getItem())
-                    || ItemSwapperSharedMod.instance.getSessionSettings().isEnableShulkers())) {
-                return new ContainerPage(slot);
             }
         }
         // check for links
